@@ -1,8 +1,6 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { ClerkMiddleware } from "@clerk/nextjs/server";
 
-
-
-export default clerkMiddleware({
+export default ClerkMiddleware({
   publicRoutes: ["/", "/api/webhook/clerk"],
   ignoredRoutes: ["/api/orders/update-status"]
 });
