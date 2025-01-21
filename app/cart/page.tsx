@@ -1,34 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useUser } from "@clerk/nextjs"
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useCart } from '../contexts/CartContext'
 import Link from 'next/link'
 import CheckoutButton from '../components/CheckoutButton'
 
-
 export default function Cart() {
-  const { cart, removeFromCart, clearCart } = useCart()
-  const [isCheckoutComplete, setIsCheckoutComplete] = useState(false)
+  const { isSignedIn } = useUser()
+  const router = useRouter()
+  const { cart, removeFromCart } = useCart()
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  useEffect(() => {
+    if (!isSignedIn) {
+      router.push('/')
+    }
+  }, [isSignedIn, router])
 
-  const handleCheckout = () => {
-    // Here you would typically integrate with a payment gateway
-    // For this example, we'll just simulate a successful checkout
-    setTimeout(() => {
-      clearCart()
-      setIsCheckoutComplete(true)
-    }, 1500)
-  }
-
-  if (isCheckoutComplete) {
+  if (!isSignedIn) {
     return (
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Thank you for your purchase!</h1>
-        <p className="mb-4">Your order has been placed successfully.</p>
-        <Link href="/" className="text-blue-500 hover:underline">
-          Continue Shopping
-        </Link>
+      <div className="text-center py-8">
+        <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
+        <p>You need to be signed in to view your cart.</p>
       </div>
     )
   }
@@ -44,8 +38,10 @@ export default function Cart() {
     )
   }
 
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
   return (
-    <div>
+    <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
       <div className="space-y-4">
         {cart.map((item) => (
@@ -67,10 +63,8 @@ export default function Cart() {
       </div>
       <div className="mt-8">
         <p className="text-xl font-semibold">Total: ${total.toFixed(2)}</p>
-        
+        <CheckoutButton />
       </div>
-      <CheckoutButton />
     </div>
   )
 }
-

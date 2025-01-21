@@ -1,76 +1,116 @@
-// contexts/OrderContext.tsx
-'use client'
+'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useCart } from './CartContext'
-import { v4 as uuidv4 } from 'uuid'
+import { createContext, useContext, useState, useEffect } from 'react';
 
-type OrderItem = {
-  name: string
-  quantity: number
-  price: number
+interface CartItem {
+  name: string;
+  quantity: number;
+  price: number;
 }
 
-type Order = {
-  id: string
-  date: string
-  total: number
-  items: OrderItem[]
-  status: 'Processing' | 'Shipped' | 'Delivered'
+interface Order {
+  id: string;
+  items: CartItem[];
+  total: number;
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
 }
 
-type OrderContextType = {
-  orders: Order[]
-  addOrder: (cartItems: any[]) => void
+interface OrderContextType {
+  orders: Order[];
+  addOrder: (cartItems: CartItem[]) => Promise<Order>;
+  fetchOrders: () => Promise<void>;
+  getOrderById: (orderId: string) => Promise<Order | null>;
+  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<Order>;
+  loading: boolean;
 }
 
-const OrderContext = createContext<OrderContextType | undefined>(undefined)
+const OrderContext = createContext<OrderContextType | undefined>(undefined);
+
+export function useOrders() {
+  const context = useContext(OrderContext);
+  if (!context) {
+    throw new Error('useOrders must be used within an OrderProvider');
+  }
+  return context;
+}
 
 export function OrderProvider({ children }: { children: React.ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>([])
-  const { clearCart } = useCart()
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Load orders from localStorage on mount
   useEffect(() => {
-    const savedOrders = localStorage.getItem('orders')
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders))
+    const storedOrders = localStorage.getItem('orders');
+    if (storedOrders) {
+      setOrders(JSON.parse(storedOrders));
     }
-  }, [])
+  }, []);
 
   // Save orders to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('orders', JSON.stringify(orders))
-  }, [orders])
+    localStorage.setItem('orders', JSON.stringify(orders));
+  }, [orders]);
 
-  const addOrder = (cartItems: any[]) => {
-    const newOrder: Order = {
-      id: uuidv4(),
-      date: new Date().toISOString(),
-      total: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-      items: cartItems.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      status: 'Processing'
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      // Simulating a fetch by retrieving data from local storage
+      const storedOrders = localStorage.getItem('orders');
+      if (storedOrders) {
+        setOrders(JSON.parse(storedOrders));
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setOrders(prevOrders => [newOrder, ...prevOrders])
-    clearCart() // Clear the cart after creating order
-  }
+  const getOrderById = async (orderId: string): Promise<Order | null> => {
+    const order = orders.find((order) => order.id === orderId) || null;
+    return order;
+  };
+
+  const updateOrderStatus = async (orderId: string, status: Order['status']): Promise<Order> => {
+    const updatedOrders = orders.map((order) =>
+      order.id === orderId
+        ? { ...order, status, updatedAt: new Date().toISOString() }
+        : order
+    );
+    setOrders(updatedOrders);
+
+    const updatedOrder = updatedOrders.find((order) => order.id === orderId) as Order;
+    return updatedOrder;
+  };
+
+  const addOrder = async (cartItems: CartItem[]) => {
+    const newOrder: Order = {
+      id: `${Date.now()}`,
+      items: cartItems,
+      total: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setOrders((prevOrders) => [newOrder, ...prevOrders]);
+    return newOrder;
+  };
 
   return (
-    <OrderContext.Provider value={{ orders, addOrder }}>
+    <OrderContext.Provider
+      value={{
+        orders,
+        addOrder,
+        fetchOrders,
+        getOrderById,
+        updateOrderStatus,
+        loading,
+      }}
+    >
       {children}
     </OrderContext.Provider>
-  )
-}
-
-export const useOrders = () => {
-  const context = useContext(OrderContext)
-  if (context === undefined) {
-    throw new Error('useOrders must be used within an OrderProvider')
-  }
-  return context
+  );
 }

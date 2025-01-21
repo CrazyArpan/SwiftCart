@@ -25,6 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
+      <OrderProvider>
       <html lang="en">
         <body className={inter.className}>
           <ThemeProvider>
@@ -42,6 +43,7 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
+      </OrderProvider>
     </ClerkProvider>
   )
 }

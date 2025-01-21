@@ -29,6 +29,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
         name: `${product.name} - ${selectedSubcategory.name}`,
         price: selectedSubcategory.price,
         quantity: 1,
+        image: ''
       })
       onClose()
     }

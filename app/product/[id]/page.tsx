@@ -1,17 +1,21 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { useCart } from '../../contexts/CartContext'
-import { products } from '../../data/products'
+import React from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
+import { useCart } from '../../contexts/CartContext';
+import { products } from '../../data/products';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = products.find(p => p.id === parseInt(params.id))
-  const [selectedSubcategory, setSelectedSubcategory] = useState(product?.subcategories[0])
-  const { addToCart } = useCart()
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  // Unwrap the params using React.use()
+  const { id } = React.use(params); // Unwrap the params
+
+  const product = products.find(p => p.id === parseInt(id));
+  const [selectedSubcategory, setSelectedSubcategory] = useState(product?.subcategories[0]);
+  const { addToCart } = useCart();
 
   if (!product) {
-    return <div>Product not found</div>
+    return <div>Product not found</div>;
   }
 
   const handleAddToCart = () => {
@@ -21,9 +25,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         name: `${product.name} - ${selectedSubcategory.name}`,
         price: selectedSubcategory.price,
         quantity: 1,
-      })
+      });
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
@@ -65,6 +69,5 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
