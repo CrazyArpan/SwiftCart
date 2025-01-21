@@ -1,4 +1,5 @@
 import { ClerkMiddleware } from "@clerk/nextjs/server";
+import { auth } from '@clerk/nextjs/server'
 
 export default ClerkMiddleware({
   publicRoutes: ["/", "/api/webhook/clerk"],
