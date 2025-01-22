@@ -1,5 +1,5 @@
 // app/api/orders/[orderId]/route.ts
-import { auth } from "@clerk/nextjs";
+import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { orderId: string } }
 ) {
   try {
-    const { userId } = auth();
+    const { userId } = getAuth(req);
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
