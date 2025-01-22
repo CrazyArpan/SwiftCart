@@ -1,5 +1,5 @@
 // app/api/orders/route.ts
-import { auth } from "@clerk/nextjs";
+import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // In-memory storage for orders (replace with your storage solution)
@@ -7,7 +7,7 @@ let orders: any[] = [];
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = getAuth(req);
 
     if (!userId) {
       return NextResponse.json(
