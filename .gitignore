@@ -15,6 +15,10 @@ out/
 .env.local
 .env.*.local
 
+# Lock files (retain for consistent dependency installations)
+!yarn.lock
+!package-lock.json
+
 # MacOS files
 .DS_Store
 
@@ -23,5 +27,15 @@ out/
 .idea/
 *.swp
 
-# Other
+# Temporary files
+.tmp/
+*.tmp
+
+# Test artifacts
+junit.xml
+
+# Coverage reports
 coverage/
+
+# Docker files (optional, if using Docker)
+docker-compose.override.yml
