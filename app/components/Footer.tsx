@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-gray-800 text-white py-4">
       <div className="container mx-auto px-4 text-center">
         <p>
-          Made with ❤️ by Arpan, Suman, Abhijit, Rupak, Sathi
+          Made with ❤️ by Arpan
         </p>
       </div>
     </footer>
